@@ -1,0 +1,80 @@
+- hosts: "localhost"
+  vars_files:
+          - lock.yml
+  tasks:
+   - name: "launching ec2 instance"
+     ec2:
+      key_name: "myarthos1"
+      instance_type: t2.micro
+      image: "ami-0a9d27a9f4f5c0efc"
+      wait: yes
+      count: 1
+      instance_tags:
+              Name: "webserver"
+      state: present
+      region: "ap-south-1"
+      group_id: "sg-0088112d467d8b387"
+      aws_access_key: "{{ accesskey}}"
+      aws_secret_key: "{{ secretkey}}"
+     register: backend
+
+   - name: Add new instance to host group
+     add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: webserver
+     loop: "{{ backend.instances }}"
+
+   - name: Wait for SSH to come up
+     wait_for:
+             host: "{{ item.public_dns_name }}"
+             port: 22
+             state: started
+     loop: "{{ backend.instances }}"
+- hosts: webserver
+  gather_facts: no
+  tasks:
+   - name: running role for webserver
+     include_role:
+             name: webserver
+
+
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+        - lock.yml
+  tasks:
+   - name: launching ec2 instance for lbserver
+     ec2:
+       key_name: "myarthos1"
+       instance_type: t2.micro
+       image: "ami-0a9d27a9f4f5c0efc"
+       wait: yes
+       count: 1
+       instance_tags:
+             Name: "lbserver"
+       state: present
+       region: "ap-south-1"
+       group_id: "sg-0088112d467d8b387"
+       aws_access_key: "{{ accesskey}}"
+       aws_secret_key: "{{ secretkey}}"
+     register: frontend
+
+   - name: Add new instance to host group lbser
+     add_host:
+       hostname: "{{ item.public_ip }}"
+       groupname: lbserver  
+     loop: "{{ frontend.instances }}"
+
+   - name: Wait for SSH to come up
+     wait_for:
+       host: "{{ item.public_dns_name }}"
+       port: 22
+       state: started
+     loop: "{{ frontend.instances }}"
+
+- hosts: lbserver
+  gather_facts: no
+  tasks:
+   - name: running role
+     include_role:
+          name: lbserver
