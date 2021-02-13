@@ -1,17 +1,18 @@
 ---
 # tasks file for httpdserver
- - name: install httpd
-   package:
-            name: 
-             - httpd
-             - php
+- name: install httpd
+  package:
+     name:
+      - httpd
+      - php
+     state: present
 
-            state: present
- - name: copy code
-   get_url:
-            url: https://raw.githubusercontent.com/uditagarwal1305/ansible_task2/main/index.html
-            dest: "/var/www/html/index.html"
- - name: start httpd
-   service:
-            name: httpd
-            state: started
+- name: copy code
+  get_url:
+      url: https://raw.githubusercontent.com/uditagarwal1305/ansible_task3/main/index.php
+      dest: "/var/www/html/index.html"
+
+- name: start httpd
+  service:
+       name: httpd
+       state: started

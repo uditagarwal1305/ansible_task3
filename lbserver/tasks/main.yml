@@ -7,7 +7,7 @@
     state: present
 
 - name: Copying my own configuration file
-  template:
+  copy:
     src: "haproxy.cfg"
     dest: "/etc/haproxy/haproxy.cfg"
   notify: restart lbserver
