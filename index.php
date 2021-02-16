@@ -2,7 +2,7 @@
 
 <?php
 
-echo "<b> <font color=\"yellow\">Hey!!!, Welcome to my Web Page</font> </b>";
+echo "<b> <font color=\"blue\">Hey!!!, Welcome to my Web Page</font> </b>";
 
 echo "<br>";
 
